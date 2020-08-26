@@ -4,8 +4,7 @@ library(ggpubr)
 library(corrplot)
 
 
-data("faithful")
-?data("quakes")
+data("quakes")
 
 head(quakes)
 
@@ -13,8 +12,9 @@ df <- quakes %>% select(-lat, -long)
 
 #missing data
 sum(is.na(df))
+'No missing data'
 
-# plot magnitude vs 
+# plot ggplot2 magnitude vs depth and mag vs stations
 g1 = ggplot(data = df, aes(x=mag, y = stations)) +
   geom_point(color = 'red', alpha = 0.8) +
   geom_smooth(method = 'lm') + ggtitle('Quantas Estações reportaram a Magnitude do Terremoto')
@@ -34,9 +34,10 @@ quakes_train <- training(quakes_split)
 quakes_teste <- testing(quakes_split)
 
 
-#Criando booststrap
+#Criando booststrap: separa os dados em vários samples
 quakes_boot <- bootstraps(quakes_train)
 quakes_boot
+
 
 #Regressão Linear
 #------

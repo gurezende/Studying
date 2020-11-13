@@ -9,3 +9,5 @@ Activities performed:
 * Natural Language Processing using nltk package, being able to create Word Cloud, frequence count and N-Grams analysis
 * Topic Analysis of the text using LDA algorithm
 * Sentiment Analysis using Text Blob
+
+![](https://github.com/gurezende/Studying/blob/master/Python/SentimentAnalysis/FL-wordcloud.png)

@@ -1,5 +1,5 @@
-## PROJECT 7
-### Tweets Analysis
+# |PROJECT 7
+## Tweet's Analysis
 
 In this project, I have extracted 100 tweets using Tweepy to analyze it.
 Activities performed:

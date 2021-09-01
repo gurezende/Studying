@@ -10,7 +10,7 @@ Dicionário de Dados:
 * Descrição: Descrição com motor, combustível, tipo de câmbio.
 * Automático: Variável binária com "Y" se o câmbio é automático e "N" se o câmbio é manual.
 * Ano: Ano de Fabricação / Ano do Modelo
-* Km: Quillometragem rodada
+* Km: Quilometragem rodada
 * Local: Cidade - Estado onde foi feito o anúncio
 * Anunciante: Tipo de anunciante (Pessoa, Loja ou Concessionária)
 * Preço: Variável alvo. Preço em BRL.

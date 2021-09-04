@@ -50,9 +50,9 @@ df = df.query('city in @filter_city')
 
 
 # About Me
-st.text('Demonstration App created with the toy dataset *Tips* from seaborn')
-st.text('App created by Gustavo R Santos')
-st.markdown('[Check out my blog on Medium](https://medium.com/gustavorsantos)')
+st.sidebar.text('Demonstration App created with the toy dataset *Tips* from seaborn')
+st.sidebar.text('App created by Gustavo R Santos')
+st.sidebar.markdown('[Check out my blog on Medium](https://medium.com/gustavorsantos)')
 
 #-----------------------------------------------------------------------
 

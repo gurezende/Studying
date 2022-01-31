@@ -32,4 +32,6 @@ Data dictionary:
 
 ---
 Dataset: Cars.csv
-Original version can be found at: https://github.com/gurezende/Studying/blob/master/Datasets/Cars.csv
+
+Original version can be found at: 
+* https://github.com/gurezende/Studying/blob/master/Datasets/Cars.csv

@@ -29,3 +29,7 @@ Data dictionary:
 * Location: City - State
 * Advertiser: Type of advertiser (Person, Store or Dealership)
 * Price: Target variable. Price in BRL.
+
+---
+Dataset: Cars.csv
+Original version can be found at: https://github.com/gurezende/Studying/blob/master/Datasets/Cars.csv

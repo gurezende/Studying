@@ -34,4 +34,4 @@ Data dictionary:
 Dataset: Cars.csv
 
 Original version can be found at: 
-* https://github.com/gurezende/Studying/blob/master/Datasets/Cars.csv
+* https://www.kaggle.com/gagandeep16/car-sales

@@ -146,7 +146,8 @@ We can see that the medians are pretty close, there is no much difference. Docum
 ```{r}
 # Boxplot Ratings by genre
 ggplot(data=movies2, aes(y=reorder(genre,imdb_rating), x=imdb_rating) ) +
-  geom_boxplot(aes(fill=genre), show.legend = FALSE)
+  geom_boxplot(aes(fill=genre), show.legend = FALSE) +
+  ggtitle('Boxplot Ratings by genres')
 ```
 
 
@@ -210,9 +211,20 @@ summary(anova_bestdir)
 anova_audience <- aov(imdb_rating ~ audience_rating, data = movies2)
 summary(anova_audience)
 
+# Plot boxplots ratings vs Audience
+ggplot(data=movies2, aes(x=audience_rating, y=imdb_rating)) +
+  geom_boxplot(aes(fill=audience_rating), show.legend = F )+
+  ggtitle('Boxplot Ratings vs. Audience Ratings')
+
+# Plot boxplots ratings vs Critics Rating
+ggplot(data=movies2, aes(x=critics_rating, y=imdb_rating)) +
+  geom_boxplot(aes(fill=critics_rating), , show.legend = F )+
+  ggtitle('Boxplot Ratings vs. Critics Ratings')
+
 ```
 
 Best director influences. Best actor or actress, does not.
+Based on the ANOVA tests, Audience and Critics ratings influences IMDB ratings and that is also perceptible on the boxplots.
 
 #### Feature Engineering: Creating a new Variable Prizes
 
@@ -227,7 +239,8 @@ summary(anova_prizes)
 
 # Plot boxplots ratings vs prizes
 ggplot(data=movies2, aes(x=prizes, y=imdb_rating, group=prizes)) +
-  geom_boxplot(aes(fill=factor(prizes)) )
+  geom_boxplot(aes(fill=factor(prizes)) )+
+  ggtitle('Boxplot Ratings by quantity of prizes')
 
 ```
 
@@ -338,14 +351,14 @@ Let's see the variable prizes.
 
 # Adding prizes
 model7 <- lm(imdb_rating ~ audience_score + critics_score + genre + 
-               imdb_num_votes+ prizes, data=movies2)
+               imdb_num_votes+ prizes+ audience_rating + critics_rating, data=movies2)
 summary(model7)
 
 ```
-Not much added as well.
+We increased more than 1% with the addition of audience rating and critics_rating, however prizes is not that relevant to the model.
 
 
-Given that the model 2 is the most simple and keeps the same level of explanatory power, I will keep the model2 at ~81% of R²-Adjusted.
+Given that the model 7 has the highest explanatory power, I will keep it ~83% of R²-Adjusted.
 
 Let's now look at the residuals and assess the final model.
 
@@ -355,11 +368,11 @@ Let's now look at the residuals and assess the final model.
 par(mfrow=c(1,2))
 
 # Histogram of the residuals
-hist(model2$residuals)
+hist(model7$residuals)
 
 # qqplot
-qqnorm(model2$residuals)
-qqline(model2$residuals)
+qqnorm(model7$residuals)
+qqline(model7$residuals)
 
 ```
 
@@ -367,7 +380,7 @@ That's approximately normal. There is some skewness on the left side, but we are
 
 
 ```{r}
-plot(model2)
+plot(model7)
 ```
 
 The model is fairly good, it shows some skewness in the residuals, but it is still a good model.
@@ -391,8 +404,8 @@ print( paste('train:', dim(train)) )
 print( paste('test:', dim(test)) )
 
 # Model Traning
-linear_model <- lm(imdb_rating ~ audience_score + critics_score + genre + imdb_num_votes,
-                   data= train)
+linear_model <- lm(imdb_rating ~ audience_score + critics_score + genre + 
+               imdb_num_votes+ prizes+ audience_rating + critics_rating, data=movies2)
 
 summary(linear_model)
 
@@ -435,5 +448,5 @@ What one likes may not be the same as what other like. But having a lot of ratin
 In a Linear Regression, the objective is to explain the variability of the response variable - IMDB Ratings in this case - using other variables that are related to it.
 Using some statistical tests such as correlation (that measures the strength of a linear relationship between two variables) and ANOVA (that can test if the means of different groups are statistically equal or not), we are able to drive the choice of the best features to compose the model.
 
-From a dataset with 32 variables, we got to a final model with 4 variables, explaining more than 81% of the *imdb_ratings* variance. 
-The model presented - on the test set - a 0.5 points error on average for each prediction and 0.36 of Mean Absolute error.
+From a dataset with 32 variables, we got to a final model with 4 variables, explaining more than 82% of the *imdb_ratings* variance. 
+The model presented - on the test set - a 0.43 points error on average for each prediction and 0.3 of Mean Absolute error.

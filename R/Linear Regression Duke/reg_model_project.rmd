@@ -1,0 +1,312 @@
+---
+title: "Modeling and prediction for movies"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+library(statsr)
+library(GGally)
+library(Metrics)
+```
+
+### Load data
+
+Make sure your data and R Markdown files are in the same directory. When loaded
+your data file will be called `movies`. Delete this note when before you submit 
+your work. 
+
+```{r load-data}
+load("movies.Rdata")
+
+movies %>% head(5)
+```
+
+
+
+* * *
+
+## Part 1: Data
+
+As per the dataset documentation, "*The data set is comprised of 651 randomly sampled movies produced and released before 2016*".
+Therefore, as we have a random sample, we can generalize the data to other movies.
+But being an observational dataset, there's no causality, only association possible.
+
+One potential bias source is that the movies not present in the IMDB cannot be selected.
+
+```{r}
+# Dataset shape (rows, columns)
+print( paste('This dataset has', dim(movies)[1], 'rows and', dim(movies)[2], 'columns.') )
+
+# Types of each variable
+str(movies)
+```
+While I am sure we could explore this dataset in many ways, for the purpose of this project that is a Linear Regression Analysis, I will initially drop some columns that will not matter for the study.
+The variables dropped are:
+* actor1, actor2, actor3, actor4, actor5
+* imdb_url and rt_url
+* studio
+* director
+
+```{r}
+# Drop variables and assign to a new dataset name to preserve the original data
+movies2 <- movies %>% 
+  select( !c(actor1, actor2, actor3, actor4, actor5, director, imdb_url, rt_url, studio) )
+```
+
+
+* * *
+
+## Part 2: Research question
+
+The present study will perform a **Multiple Linear Regression Analysis**, seeking answer to the question:
+
+### *What variables from the dataset can better explain the variance of the IMDB ratings?*
+
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+The first steps for a good exploratory analysis are to check the distribution of the data and the descriptive statistics.
+
+```{r}
+# Descriptive Statistics
+summary(movies2)
+```
+The dataset looks balanced for many variables. Let's point some insights extracted from these stats:
+* The *genre* has a spike in Drama movies and the other ones more balanced.
+* The *year* of release looks more concentrated in recent years.
+* The *release month* looks balanced throughout the year. Interesting.
+* *runtime* brings mean and median around 100 minutes.
+* *dvd release year* is around 4 to 6 years more than the mean of the relase of the film. Maybe that has something to do with the time when DVDs became more popular and cheap, thus more titles started to be released.
+* The **target variable** *imdb_rating* goes from (lowest) 1-10 (highest) and the mean is around 6.5, what points out that there are slightly more good ratings than bad ones.
+* The *critics score* is the same thing, with a mean/ median around 6.
+
+#### Let's see the distributions now.
+
+```{r}
+# Selecting only numerical variables
+movies_num <- select_if(movies2, is.numeric) 
+
+# Creating a figure for the plots
+par(mfrow=c(3, 4)) 
+
+
+# Plotting histograms
+for (var in colnames(movies_num)){
+  hist(movies_num[[var]], main=paste('Hist for', var), col='gray' )
+}
+
+```
+
+
+After plotted all of the histograms, we see that most of the variables are skewed. There are no normally distributed variables.
+
+In order to start thinking about the modeling, it is needed to plot the scatterplots and check the relationships between the variables.
+
+```{r}
+# Plot scatterplots
+ggpairs(movies_num[,c('runtime', 'thtr_rel_year', 'thtr_rel_month', 'thtr_rel_day','imdb_rating')])
+ggpairs(movies_num[,c('dvd_rel_year', 'dvd_rel_month', 'imdb_num_votes','imdb_rating')])
+ggpairs(movies_num[,c('critics_score', 'audience_score', 'imdb_rating')])
+
+```
+
+
+With the scatterplots on screen, they present that the highest correlations with the response variable *imdb_ratings* are the scores from other sources, such as *audience_score and critics_score*.
+
+#### Does the genre interfere on the ratings?
+
+As the ratings are skewed, we will prefer to use the median
+
+```{r}
+
+# Mean ratings by 
+movies2 %>% 
+  group_by(genre) %>% 
+  summarise(median_value = quantile(imdb_rating, 0.5),
+            n = n(),
+            mean = mean(imdb_rating)) %>% 
+  arrange(desc(median_value))
+
+```
+
+We can see that the medians are pretty close, there is no much difference. Documentaries, Musicals and Drama lead the ratings.
+
+```{r}
+# Boxplot Ratings by genre
+ggplot(data=movies2, aes(y=reorder(genre,imdb_rating), x=imdb_rating) ) +
+  geom_boxplot(aes(fill=genre), show.legend = FALSE)
+```
+
+
+But, can we say that those averages are statistically different?
+
+```{r}
+
+# ANOVA test for the genre means
+anova_genre <- aov(imdb_rating ~ genre, data = movies2)
+summary(anova_genre)
+
+```
+
+With a P value below the significance level of 0.05, we reject the null hypothesys and confirm that there is significant difference by genre.
+
+Before we go to the modeling, let's get rid of some missing values, identified in the stats.
+
+```{r}
+
+# Check for total NAs
+sum(is.na(movies2))
+```
+
+As there are only 25, I will just go ahead and remove them. it is just 3% of the data
+
+```{r}
+# Remove NAs
+movies2 <- na.omit(movies2)
+
+```
+
+
+* * *
+
+## Part 4: Modeling
+
+
+In this section, we will start to model the problem using linear regression.
+
+We know that the best correlated variables are *audience_score, critics_score*. We also know that *genre* makes difference in the ratings, thus I will begin with those variables and build from them.
+
+```{r}
+
+# Initial model
+model1 <- lm(imdb_rating ~ audience_score + critics_score + genre, data=movies2)
+
+summary(model1)
+
+```
+
+That is a good start. The R² was 81% from start.
+Audience and critics scores are very important for the model and help to explain the variance.
+Notice that the genre brings some significant variables and some that are not.
+
+Let's use the forward technique and add some new variables, aiming to increase our R²-Adjusted.
+Some other variables to be used are using the correlation criterium. The stronger, the better, so *imdb_num_votes, runtime, thtr_rel_month and thtr_rel_year*
+
+```{r}
+# Added imdb_num_votes to the model
+model2 <- lm(imdb_rating ~ audience_score + critics_score + genre + imdb_num_votes, data=movies2)
+summary(model2)
+
+```
+
+*imdb_num_votes* proved to be a good variable, increasing our R²-Adj in 1%. 
+
+```{r}
+
+# Adding runtime
+model3 <- lm(imdb_rating ~ audience_score + critics_score + genre + imdb_num_votes +
+               runtime, data=movies2)
+summary(model3)
+
+```
+
+The addition of *runtime* was almost not percepted. That one won't be kept.
+
+```{r}
+
+# Adding thtr_rel_month
+model4 <- lm(imdb_rating ~ audience_score + critics_score + genre + imdb_num_votes+
+               thtr_rel_month, data=movies2)
+summary(model4)
+
+```
+The variable *thtr_rel_month* is also not very meaningful. It will just make the model more complex without really adding value.
+
+```{r}
+
+# Adding thtr_rel_year
+model5 <- lm(imdb_rating ~ audience_score + critics_score + genre + 
+               imdb_num_votes+ thtr_rel_year, data=movies2)
+summary(model5)
+
+```
+
+Once again, the same is valid. The variable *thtr_rel_year* is not relevant to the model.
+
+I will keep this model at 80% of R²-Adjusted.
+
+Let's now look at the residuals and assess the final model.
+
+```{r}
+
+# Setup 2 graphics in one row
+par(mfrow=c(1,2))
+
+# Histogram of the residuals
+hist(model2$residuals)
+
+# qqplot
+qqnorm(model2$residuals)
+qqline(model2$residuals)
+
+```
+
+That's approximately normal. There is some skewness on the left side, but we are ok with it.
+
+
+```{r}
+plot(model2)
+```
+
+The model is fairly good, it shows some skewness in the residuals, but it is still a good model.
+The residuals don't show any pattern, which is good.
+
+* * *
+
+## Part 5: Prediction
+
+```{r}
+# Predictions
+y_hat <- predict(model2)
+
+performance = data.frame(title = movies2$title,
+                         rating= movies2$imdb_rating,
+                         prediction = y_hat,
+                         y_error = movies2$imdb_rating - y_hat)
+
+# RMSE
+sqrt( mean(performance$y_error^2) )
+
+# MAE
+mae(performance$rating, performance$prediction)
+
+```
+```{r}
+
+# Get random predictions
+preds_sample <- sample(1:nrow(performance), 15)
+
+# View some predictions
+performance[preds_sample,]
+```
+
+
+* * *
+
+## Part 6: Conclusion
+
+Movie ratings are something subjective. What I like may not be the same as what you like. But having a lot of ratings from many people can show us some patterns that can be explained by the variables we have.
+From a dataset with 32 variables, we got to a final model with 4 variables, explaining more than 81% of the *imdb_ratings* variance. 
+The model presented a 0.45 points error on average for each prediction and 0.32 of Mean Absolute error.

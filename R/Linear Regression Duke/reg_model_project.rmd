@@ -160,7 +160,80 @@ summary(anova_genre)
 
 ```
 
-With a P value below the significance level of 0.05, we reject the null hypothesys and confirm that there is significant difference by genre.
+With a P value below the significance level of 0.05, **we reject the null hypothesys that the means are equal for all of the groups** and confirm that there is significant difference by genre.
+
+### Does the movie being in the top200 influence the ratings?
+
+```{r}
+
+# ANOVA test for the top 200 box
+anova_top <- aov(imdb_rating ~ top200_box, data = movies2)
+summary(anova_top)
+```
+
+According to the P-Value, yes. Therefore, another variable to be tested in the model.
+
+### Does the movie winning the Best picture prize or Best Pic Nomination influence the ratings?
+
+```{r}
+
+# ANOVA test for best picture
+anova_bestpic <- aov(imdb_rating ~ best_pic_win, data = movies2)
+summary(anova_bestpic)
+
+# ANOVA test for best picture nomination
+anova_bestnom <- aov(imdb_rating ~ best_pic_nom, data = movies2)
+summary(anova_bestnom)
+
+```
+
+Yes, it shows that those variables influence the ratings and should be added to the model for evaluation.
+
+
+### Does best actor or director influence the ratings?
+
+```{r}
+
+# ANOVA test for best actor
+anova_bestactor <- aov(imdb_rating ~ best_actor_win, data = movies2)
+summary(anova_bestactor)
+
+# ANOVA test for best actrees
+anova_bestactress <- aov(imdb_rating ~ best_actress_win, data = movies2)
+summary(anova_bestactress)
+
+# ANOVA test for best picture
+anova_bestdir <- aov(imdb_rating ~ best_dir_win, data = movies2)
+summary(anova_bestdir)
+
+# ANOVA test for Audience Rating
+anova_audience <- aov(imdb_rating ~ audience_rating, data = movies2)
+summary(anova_audience)
+
+```
+
+Best director influences. Best actor or actress, does not.
+
+#### Feature Engineering: Creating a new Variable Prizes
+
+```{r}
+
+# Variable prizes won
+movies2$prizes <- as.integer(movies2$best_actor_win) + as.integer(movies2$best_actress_win) + as.integer(movies2$best_pic_win) + as.integer(movies2$best_dir_win) - 4
+
+# ANOVA test for the new variable prizes
+anova_prizes <- aov(imdb_rating ~ prizes, data = movies2)
+summary(anova_prizes)
+
+# Plot boxplots ratings vs prizes
+ggplot(data=movies2, aes(x=prizes, y=imdb_rating, group=prizes)) +
+  geom_boxplot(aes(fill=factor(prizes)) )
+
+```
+
+
+The ANOVA test shows that the variable created *prizes* influences the ratings. It will be tested in the model.
+
 
 Before we go to the modeling, let's get rid of some missing values, identified in the stats.
 
@@ -245,7 +318,34 @@ summary(model5)
 
 Once again, the same is valid. The variable *thtr_rel_year* is not relevant to the model.
 
-I will keep this model at 80% of R²-Adjusted.
+Now I will add the binary variables *best_dir_win, best_pic_nom, best_pic_win and top200_box*. All of those showed influence over the ratings during ANOVA test.
+
+```{r}
+
+# Adding best director, actor, actress, picture
+model6 <- lm(imdb_rating ~ audience_score + critics_score + genre + imdb_num_votes+ 
+               best_dir_win + best_pic_nom + best_pic_win + top200_box, data=movies2)
+summary(model6)
+
+```
+
+
+The addition of those variables did not increase significantly the R². So, they should be kept out of the model.
+
+
+Let's see the variable prizes.
+```{r}
+
+# Adding prizes
+model7 <- lm(imdb_rating ~ audience_score + critics_score + genre + 
+               imdb_num_votes+ prizes, data=movies2)
+summary(model7)
+
+```
+Not much added as well.
+
+
+Given that the model 2 is the most simple and keeps the same level of explanatory power, I will keep the model2 at ~81% of R²-Adjusted.
 
 Let's now look at the residuals and assess the final model.
 
@@ -277,14 +377,36 @@ The residuals don't show any pattern, which is good.
 
 ## Part 5: Prediction
 
+##### Train Test Split
+```{r}
+
+#Index to create a random sample for training
+train_index <- sample(1:nrow(movies2), size= 0.8*nrow(movies2) )
+
+# Train and test datasets
+train <- movies2[train_index,]
+test <- movies2[-train_index,]
+
+print( paste('train:', dim(train)) )
+print( paste('test:', dim(test)) )
+
+# Model Traning
+linear_model <- lm(imdb_rating ~ audience_score + critics_score + genre + imdb_num_votes,
+                   data= train)
+
+summary(linear_model)
+
+```
+
+
 ```{r}
 # Predictions
-y_hat <- predict(model2)
+y_hat <- predict(linear_model, test)
 
-performance = data.frame(title = movies2$title,
-                         rating= movies2$imdb_rating,
+performance = data.frame(title = test$title,
+                         rating= test$imdb_rating,
                          prediction = y_hat,
-                         y_error = movies2$imdb_rating - y_hat)
+                         y_error = test$imdb_rating - y_hat)
 
 # RMSE
 sqrt( mean(performance$y_error^2) )
@@ -307,6 +429,11 @@ performance[preds_sample,]
 
 ## Part 6: Conclusion
 
-Movie ratings are something subjective. What I like may not be the same as what you like. But having a lot of ratings from many people can show us some patterns that can be explained by the variables we have.
+Movie ratings are something subjective. 
+What one likes may not be the same as what other like. But having a lot of ratings from many people can show us some patterns that can be explained by the variables we have.
+
+In a Linear Regression, the objective is to explain the variability of the response variable - IMDB Ratings in this case - using other variables that are related to it.
+Using some statistical tests such as correlation (that measures the strength of a linear relationship between two variables) and ANOVA (that can test if the means of different groups are statistically equal or not), we are able to drive the choice of the best features to compose the model.
+
 From a dataset with 32 variables, we got to a final model with 4 variables, explaining more than 81% of the *imdb_ratings* variance. 
-The model presented a 0.45 points error on average for each prediction and 0.32 of Mean Absolute error.
+The model presented - on the test set - a 0.5 points error on average for each prediction and 0.36 of Mean Absolute error.

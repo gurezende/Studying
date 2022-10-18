@@ -10,3 +10,5 @@ Learning material about Sklearn. Things that I learn and test.
 [Polynomials](https://towardsdatascience.com/polynomial-regression-in-python-dd655a7d9f2b)
 
 [Voting Classifier](https://towardsdatascience.com/creating-an-ensemble-voting-classifier-with-scikit-learn-ab13159662d)
+
+[SVC](https://towardsdatascience.com/diving-into-c-support-vector-classification-221ced32e4b4)

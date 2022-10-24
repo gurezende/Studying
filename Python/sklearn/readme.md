@@ -12,3 +12,5 @@ Learning material about Sklearn. Things that I learn and test.
 [Voting Classifier](https://towardsdatascience.com/creating-an-ensemble-voting-classifier-with-scikit-learn-ab13159662d)
 
 [SVC](https://towardsdatascience.com/diving-into-c-support-vector-classification-221ced32e4b4)
+
+[Gradient Boosting](https://towardsdatascience.com/how-to-choose-the-number-of-estimators-for-gradient-boosting-8d06920ab891?sk=c98048ce995d075fa5bfd537cb21d7a9)

@@ -14,3 +14,5 @@ Learning material about Sklearn. Things that I learn and test.
 [SVC](https://towardsdatascience.com/diving-into-c-support-vector-classification-221ced32e4b4)
 
 [Gradient Boosting](https://towardsdatascience.com/how-to-choose-the-number-of-estimators-for-gradient-boosting-8d06920ab891?sk=c98048ce995d075fa5bfd537cb21d7a9)
+
+[Image Clustering KMeans](https://gustavorsantos.medium.com/using-kmeans-for-image-clustering-e7b87b319bbb)

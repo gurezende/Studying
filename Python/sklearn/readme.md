@@ -18,3 +18,5 @@ Learning material about Sklearn. Things that I learn and test.
 [Image Clustering KMeans](https://gustavorsantos.medium.com/using-kmeans-for-image-clustering-e7b87b319bbb)
 
 [Outliers](https://towardsdatascience.com/using-unsupervised-learning-to-find-outliers-670e07396599#40bb-452e09206137)
+
+[Effect *alpha* hyperparameter in Ridge](https://www.linkedin.com/posts/gurezende_ridge-regularization-l2-activity-6998334479933050880-jdvu?utm_source=share&utm_medium=member_desktop)

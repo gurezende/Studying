@@ -1,6 +1,6 @@
-CLUSTERING WITH PCA
+# CLUSTERING WITH PCA
 "The library Psych in R allows us to cluster values based on PCA scores"
-------------------------------------------------------------------------
+#------------------------------------------------------------------------
 
 # Loading libraries
 library(psych)

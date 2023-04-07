@@ -26,3 +26,19 @@ ggplot(mtcars, aes(x=mpg, y=hp, label=car)) +
   geom_point(aes(color= cluster)) +
   geom_text_repel() + 
   theme_stata()
+
+##################################################################################################
+# Plot with emojis
+library(emojifont)
+
+# Add clusters
+mtcars <- mtcars %>% 
+  rownames_to_column('car') %>% 
+  mutate(scores = unlist(pca$scores),
+         cluster = cut(scores, breaks=3, labels=c(emoji("blue_car"),emoji("red_car"), emoji("racing_car"))) )
+
+#Plot
+ggplot(mtcars, aes(x=mpg, y=hp, color= cluster, label=cluster)) +
+  geom_text(family="EmojiOne", size=10, show.legend = F) +
+  theme_classic()
+

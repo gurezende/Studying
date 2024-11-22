@@ -20,3 +20,5 @@ Learning material about Sklearn. Things that I learn and test.
 [Outliers](https://towardsdatascience.com/using-unsupervised-learning-to-find-outliers-670e07396599#40bb-452e09206137)
 
 [Effect *alpha* hyperparameter in Ridge](https://www.linkedin.com/posts/gurezende_ridge-regularization-l2-activity-6998334479933050880-jdvu?utm_source=share&utm_medium=member_desktop)
+
+[Iterative Imputer](https://gustavorsantos.medium.com/handle-missing-data-with-iterative-imputer-by-scikit-learn-c914479540c9)

@@ -1,4 +1,4 @@
-Tutorial how to train a LightGBM model in Python.
+## Tutorial how to train a LightGBM model in Python.
 
 Benefits:
 * Faster training speed and higher efficiency.

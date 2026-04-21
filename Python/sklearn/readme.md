@@ -22,3 +22,5 @@ Learning material about Sklearn. Things that I learn and test.
 [Effect *alpha* hyperparameter in Ridge](https://www.linkedin.com/posts/gurezende_ridge-regularization-l2-activity-6998334479933050880-jdvu?utm_source=share&utm_medium=member_desktop)
 
 [Iterative Imputer](https://gustavorsantos.medium.com/handle-missing-data-with-iterative-imputer-by-scikit-learn-c914479540c9)
+
+[Splines Transformers from Scikit-Learn](https://medium.com/code-applied/mastering-non-linear-data-why-splines-outperform-linear-models-d637de93c7ce?sk=99890cf0185105ebd784c4eddbf8e1fb)
